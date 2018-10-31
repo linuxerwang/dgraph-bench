@@ -1,0 +1,5 @@
+bench_cases:
+    #- name: "insert-person"
+    #  concurrency: 100
+    - name: "insert-friend"
+      concurrency: 100

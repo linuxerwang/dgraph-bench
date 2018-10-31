@@ -3,4 +3,4 @@
 <type>: int  .
 <updated_at>: int  .
 <xid>: string @index(exact)  .
-<friends_of>: uid @count @reverse .
+<friend_of>: uid @count @reverse .

@@ -21,7 +21,7 @@ Each server has 64G memory, and a 500GB SATA SSD:
 Af the first step, we tried to insert single node into dgraph, in different
 cluster configurations.
 
-#### 1 zero, 1 alpha, 100 concurrent goroutines, no index
+#### 1 zero, 1 alpha, 100 concurrent goroutines, no index (v1.0.9)
 
 ![image](1zero-1alpha-simple-insert.png)
 
@@ -30,7 +30,7 @@ a 20ms cool down for each call. Meanwhile the CPU load is low:
 
 ![image](1zero-1alpha-simple-insert-cpu.png)
 
-#### 1 zero, 3 alpha, 100 concurrent goroutines, no index
+#### 1 zero, 3 alpha, 100 concurrent goroutines, no index (v1.0.9)
 
 ![image](1zero-3alpha-simple-insert.png)
 
@@ -49,3 +49,20 @@ After one hour of running, we noticed a performance jump, followed by the same
 performance drop.
 
 ![image](1zero-3alpha-simple-insert-longtime.png)
+
+#### 1 zero, 3 alpha, 100 concurrent goroutines, with index (v1.0.9)
+
+![image](1zero-3alpha-simple-insert-with-indexing.png)
+
+We see a clear pattern in which the performance jump up followed by a
+exponential drop down.
+
+### Edge Insertion
+
+Before testing edge insertion, we inserted 3.3+ million people nodes to dgraph.
+In this test, it picks randomly two persons, then connects them as friends.
+
+![image](1zero-3alpha-edge-insert-with-indexing.png)
+
+The edge insertion is also slow, with a continuous descreasing trend. As always,
+the server side CPU load is rather low.
