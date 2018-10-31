@@ -1,8 +1,12 @@
-package main
+package tasks
 
 import (
 	"math/rand"
 	"time"
+)
+
+var (
+	letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 )
 
 func init() {

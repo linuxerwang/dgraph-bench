@@ -1,44 +1,25 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
-	"math/rand"
+	"io/ioutil"
+	"log"
 	"os"
-	"strconv"
 	"strings"
-	"sync/atomic"
-	"time"
 
 	"github.com/dgraph-io/dgo"
 	"github.com/dgraph-io/dgo/protos/api"
+	"github.com/linuxerwang/dgraph-bench/tasks"
 	"google.golang.org/grpc"
-)
-
-const (
-	TypePerson = iota
+	yaml "gopkg.in/yaml.v2"
 )
 
 var (
-	flagServers     = flag.String("servers", "", "Comma separated dgraph server endpoints")
-	flagConcurrency = flag.Int("c", 10, "concurrency")
-
-	letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-	cnt = int64(0)
+	flagServers = flag.String("servers", "", "Comma separated dgraph server endpoints")
 
 	dgraphCli *dgo.Dgraph
 )
-
-type Person struct {
-	Name      string
-	Xid       string
-	Type      int
-	CreatedAt int64
-	UpdatedAt int64
-}
 
 func usage() {
 	fmt.Println("Usage:")
@@ -63,11 +44,33 @@ func connect(servers string) *dgo.Dgraph {
 	return dgo.NewDgraphClient(clis...)
 }
 
+type BenchCase struct {
+	Name        string `yaml:"name"`
+	Concurrency int    `yaml:"concurrency"`
+}
+
+type Config struct {
+	BenchCases []*BenchCase `yaml:"bench_cases"`
+}
+
+func loadConfig(fn string) *Config {
+	b, err := ioutil.ReadFile(fn)
+	if err != nil {
+		panic(err)
+	}
+
+	conf := Config{}
+	if err := yaml.Unmarshal([]byte(b), &conf); err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	return &conf
+}
+
 func main() {
 	flag.Usage = usage
 	flag.Parse()
 
-	go startPrometheusServer(3500)
+	go tasks.StartPrometheusServer(3500)
 
 	if *flagServers == "" {
 		fmt.Println("Flag --servers is required.")
@@ -75,51 +78,20 @@ func main() {
 	}
 	dgraphCli = connect(*flagServers)
 
-	for i := 0; i < *flagConcurrency; i++ {
-		go func() {
-			for {
-				start := time.Now()
+	if flag.NArg() != 1 {
+		usage()
+		os.Exit(2)
+	}
+	conf := loadConfig(flag.Arg(0))
+	fmt.Printf("Found %d tasks.\n", len(conf.BenchCases))
 
-				person := &Person{
-					Xid:       strconv.FormatInt(rand.Int63n(1000)+1, 10),
-					Name:      randString(10),
-					CreatedAt: start.Unix(),
-					UpdatedAt: start.Unix(),
-				}
-
-				// Mutate people node
-				payload, err := json.Marshal(person)
-				if err != nil {
-					counters.WithLabelValues("insert-person", "ERROR").Inc()
-					fmt.Printf("Failed to marshal person object: %v\n", err)
-					return
-				}
-
-				mu := &api.Mutation{
-					CommitNow: true,
-					SetJson:   payload,
-				}
-
-				ctx, _ := context.WithTimeout(context.Background(), 3*time.Second)
-				txn := dgraphCli.NewTxn()
-				as, err := txn.Mutate(ctx, mu)
-				if err != nil {
-					counters.WithLabelValues("insert-person", "ERROR").Inc()
-					fmt.Printf("Failed to call mutate: %v\n", err)
-				}
-
-				counters.WithLabelValues("insert-person", "OK").Inc()
-				durations.WithLabelValues("insert-person", "OK").Observe(time.Since(start).Seconds())
-				_ = as
-
-				c := atomic.AddInt64(&cnt, 1)
-				if c%1000 == 0 {
-					fmt.Printf("Finished %d requests\n", c)
-				}
-
-				time.Sleep(20 * time.Millisecond)
-			}
-		}()
+	for _, bench := range conf.BenchCases {
+		task, ok := tasks.BenchTasks[bench.Name]
+		if !ok {
+			log.Fatalf("Task not found: %s\n", bench.Name)
+		}
+		fmt.Printf("Starting task %s (%d concurrent goroutines)\n", bench.Name, bench.Concurrency)
+		go tasks.ExecTask(bench.Name, task, dgraphCli, bench.Concurrency)
 	}
 
 	select {}
