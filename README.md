@@ -66,3 +66,54 @@ In this test, it picks randomly two persons, then connects them as friends.
 
 The edge insertion is also slow, with a continuous descreasing trend. As always,
 the server side CPU load is rather low.
+
+In 25 hours it inserts 8+ million edges:
+
+![image](1zero-3alpha-edge-insert-with-indexing-25hours.png)
+
+Note that the QPS jumps up every four hours followed by an exponential drop.
+
+In summary, dgraph's insertion performance is not so good.
+
+### Query Performance
+
+To test Dgraph's query ability, we generated 10,000,000 person nodes, for
+each of them we randomly generated N edges with randomly picked people, where N
+is governed with a exponential decay curve:
+
+N(t) = N<sub>0</sub> * e<sup>-k*t</sup>
+
+N<sub>0</sub> = 1000. So the numbers of friends of most of people are below 20,
+but some people will have a few hundreds of friends. The total edges all
+together exceeds 500,000,000.
+
+Since it will be very slow to insert these many nodes and edges in Dgraph, we
+used dgraph bulk loader to load the generated RDF file.
+
+#### My Friends (One-Hop Friends)
+
+![image](query-one-hop-friends-100.png)
+
+#### My Friends' Friends (Two-Hop Friends)
+
+![image](query-two-hop-friends-100.png)
+
+The query performance of Dgraph is superb. For one-hop friends query, it can
+easily handle 10k QPS on 100 concurrent request workers at ~300ms 99 percentile
+and 80ms 95 percentile. On two-hop friends query, dgraph provides ~1000 QPS on
+~0.95s 95% percentile.
+
+## Summary
+
+Dgraph aims to provide a highly available and highly scalable graph database,
+but in the latest version (1.0.9) we only see it succeed on read queries. Its
+write performance is low and unstable. This result is quite surprising, because as
+a LSMT data store it's expected to be good at write over read. Right on the
+contrary, its read performance is much better.
+
+Our tests also show that when mixed with writes, the read performance degraded
+severely.
+
+So at present, we prefer not use Dgraph for OLTP applications, or at least
+those with heave writes. And we hope Dgraph team increase its write performance
+in future releases.

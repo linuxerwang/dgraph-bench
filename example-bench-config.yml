@@ -1,5 +1,9 @@
 bench_cases:
-    #- name: "insert-person"
-    #  concurrency: 100
-    - name: "insert-friend"
+    # - name: "insert-person"
+    #   concurrency: 100
+    # - name: "insert-friend"
+    #   concurrency: 100
+    # - name: "get-friends-one-hop"
+    #   concurrency: 100
+    - name: "get-friends-two-hop"
       concurrency: 100

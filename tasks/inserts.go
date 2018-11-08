@@ -80,7 +80,7 @@ func InsertPerson(dgraphCli *dgo.Dgraph) error {
 	person := &Person{
 		Uid:       "_:" + xid,
 		Xid:       xid,
-		Name:      randString(10),
+		Name:      RandString(10),
 		CreatedAt: start.Unix(),
 		UpdatedAt: start.Unix(),
 	}
