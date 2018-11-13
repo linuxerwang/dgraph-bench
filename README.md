@@ -117,3 +117,23 @@ severely.
 So at present, we prefer not use Dgraph for OLTP applications, or at least
 those with heave writes. And we hope Dgraph team increase its write performance
 in future releases.
+
+## Update for v1.0.10 (11/13/2018)
+
+### Node Insertion
+
+5 days continuous insertion. 19166000 nodes inserted.
+
+![image](1.0.10-5days-people-insertion.png)
+
+### My Friends (One-Hop Friends)
+
+![image](1.0.10-query-one-hop-friends-100.png)
+
+Compared to v1.0.9, the throughput increases about 50%.
+
+### My Friends' Friends (Two-Hop Friends)
+
+![image](1.0.10-query-two-hop-friends-100.png)
+
+On this test, v1.0.10 provides same level of throughput.
