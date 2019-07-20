@@ -40,7 +40,7 @@ Machine 1 (with zero and ratel):
 
 ![image](1zero-3alpha-simple-insert-cpu-1.png)
 
-Mchine 2 and 3:
+Machine 2 and 3:
 
 ![image](1zero-3alpha-simple-insert-cpu-2.png)
 ![image](1zero-3alpha-simple-insert-cpu-3.png)
@@ -108,14 +108,14 @@ and 80ms 95 percentile. On two-hop friends query, dgraph provides ~1000 QPS on
 Dgraph aims to provide a highly available and highly scalable graph database,
 but in the latest version (1.0.9) we only see it succeed on read queries. Its
 write performance is low and unstable. This result is quite surprising, because as
-a LSMT data store it's expected to be good at write over read. Right on the
+a LSMT data store it's expected to be good at write over read. On the
 contrary, its read performance is much better.
 
-Our tests also show that when mixed with writes, the read performance degraded
+Our tests also show that when mixed with writes, the read performance degrades
 severely.
 
 So at present, we prefer not use Dgraph for OLTP applications, or at least
-those with heave writes. And we hope Dgraph team increase its write performance
+those with heavy writes. And we hope Dgraph team increase its write performance
 in future releases.
 
 ## Update for v1.0.10 (11/13/2018)
