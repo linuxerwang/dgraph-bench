@@ -26,13 +26,13 @@ func init() {
 	BenchTasks["insert-person"] = InsertPerson
 }
 
-func InsertFriend(dgraphCli *dgo.Dgraph) error {
+func InsertFriend(dgraphCli *dgo.Dgraph, r *rand.Rand) error {
 	start := time.Now()
 
-	auid := rand.Int63n(MaxUid)
-	buid := rand.Int63n(MaxUid)
+	auid := r.Int63n(MaxUid)
+	buid := r.Int63n(MaxUid)
 	for auid == buid {
-		buid = rand.Int63n(MaxUid)
+		buid = r.Int63n(MaxUid)
 	}
 
 	// fmt.Printf("%d is friend of %d\n", auid, buid)
@@ -72,7 +72,7 @@ func InsertFriend(dgraphCli *dgo.Dgraph) error {
 	return nil
 }
 
-func InsertPerson(dgraphCli *dgo.Dgraph) error {
+func InsertPerson(dgraphCli *dgo.Dgraph, r *rand.Rand) error {
 	start := time.Now()
 
 	xid := strconv.FormatInt(atomic.AddInt64(&personXid, 1), 10)
@@ -80,7 +80,7 @@ func InsertPerson(dgraphCli *dgo.Dgraph) error {
 	person := &Person{
 		Uid:       "_:" + xid,
 		Xid:       xid,
-		Name:      RandString(10),
+		Name:      RandString(10, r),
 		CreatedAt: start.Unix(),
 		UpdatedAt: start.Unix(),
 	}

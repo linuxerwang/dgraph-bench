@@ -27,11 +27,22 @@ var (
 		},
 		[]string{"query", "status"},
 	)
+
+	throughput = prom.NewGaugeVec(
+		prom.GaugeOpts{
+			Namespace: "dgraph",
+			Subsystem: "people",
+			Name:      "query_throughput",
+			Help:      "Query throughput",
+		},
+		[]string{"query", "status"},
+	)
 )
 
 func init() {
 	prom.Register(counters)
 	prom.Register(durations)
+	prom.Register(throughput)
 }
 
 func StartPrometheusServer(port int) {
