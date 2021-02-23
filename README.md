@@ -2,6 +2,11 @@
 
 A benchmark program for dgraph.
 
+## Benchmark Results with Dgraph Version 20.11.0
+Dgraph team recently benchmark the current setup against the latest release v20.11.0. You can 
+check out the results posted at their [Discuss Channel](https://discuss.dgraph.io/t/linuxerwang-test-benchmark-result/12090). 
+Much of the performance bottleneck in version v1.0.x have been improved over time. 
+
 ## Benchmark Results
 
 All tests are on servers with multi-way Intel(R) Xeon(R) CPU E5-2630 v3 @ 2.40GHz,
